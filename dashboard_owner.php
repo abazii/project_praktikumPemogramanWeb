@@ -65,7 +65,7 @@ $query_bookings = $koneksi->query("SELECT * FROM bookings ORDER BY id_booking AS
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Owner - BARBERBOR</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=6">
 </head>
 
 <body class="retro-body">
@@ -93,7 +93,7 @@ $query_bookings = $koneksi->query("SELECT * FROM bookings ORDER BY id_booking AS
                     <p class="retro-text mb-0">Kelola antrian customer Barberbor, cek bukti DP QRIS, dan export laporan booking.</p>
                 </div>
 
-                <!-- Tombol Export Rekapan Booking ke XLSX -->
+                <!-- Tombol Export Rekapan Booking ke XLSX (Langsung Berwarna Cream) -->
                 <div>
                     <a href="export_xlsx.php" class="btn retro-btn-export d-inline-flex align-items-center gap-2">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
@@ -133,7 +133,8 @@ $query_bookings = $koneksi->query("SELECT * FROM bookings ORDER BY id_booking AS
                             <?php if ($query_bookings->num_rows > 0): ?>
                                 <?php while ($b = $query_bookings->fetch_assoc()): ?>
                                     <?php
-                                    $file_bukti = !empty($b['bukti_pembayaran']) ? 'uploads/' . $b['bukti_pembayaran'] : '';
+                                    $nama_file  = !empty($b['bukti_pembayaran']) ? $b['bukti_pembayaran'] : '';
+                                    $file_bukti = ($nama_file !== '') ? 'uploads/' . $nama_file : '';
                                     $ada_foto   = ($file_bukti !== '' && file_exists($file_bukti));
                                     ?>
                                     <tr>
@@ -149,19 +150,26 @@ $query_bookings = $koneksi->query("SELECT * FROM bookings ORDER BY id_booking AS
                                         </td>
                                         <td class="text-success fw-bold">Rp <?= number_format($b['jumlah_dp'], 0, ',', '.'); ?></td>
 
-                                        <!-- Kolom Bukti Pembayaran Ringkas (Thumbnail + Tombol Lihat) -->
+                                        <!-- Kolom Bukti Pembayaran: Hanya Tombol Lihat & Nama File (Tanpa Gambar Langsung) -->
                                         <td class="text-center">
                                             <?php if ($ada_foto): ?>
                                                 <button type="button"
-                                                    class="btn btn-bukti-view btn-lihat-bukti d-inline-flex align-items-center gap-2"
+                                                    class="btn btn-bukti-view btn-lihat-bukti d-inline-flex align-items-center gap-1"
                                                     data-foto="<?= htmlspecialchars($file_bukti); ?>"
                                                     data-nama="<?= htmlspecialchars($b['nama_customer']); ?>"
                                                     data-service="<?= htmlspecialchars($b['nama_service']); ?>"
                                                     data-dp="Rp <?= number_format($b['jumlah_dp'], 0, ',', '.'); ?>"
-                                                    data-antrian="#<?= $b['id_booking']; ?>">
-                                                    <img src="<?= htmlspecialchars($file_bukti); ?>" alt="Bukti" class="retro-bukti-thumb">
-                                                    <span>Lihat</span>
+                                                    data-antrian="#<?= $b['id_booking']; ?>"
+                                                    title="<?= htmlspecialchars($nama_file); ?>">
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                                        <circle cx="12" cy="12" r="3" />
+                                                    </svg>
+                                                    <span>Lihat Foto</span>
                                                 </button>
+                                                <small class="d-block text-secondary mt-1" style="font-size: 0.7rem; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin: 0 auto;">
+                                                    <?= htmlspecialchars($nama_file); ?>
+                                                </small>
                                             <?php else: ?>
                                                 <span class="badge bg-secondary">Tidak ada</span>
                                             <?php endif; ?>
@@ -256,16 +264,18 @@ $query_bookings = $koneksi->query("SELECT * FROM bookings ORDER BY id_booking AS
         </div>
     </section>
 
-    <!-- Modal Preview Foto Bukti Pembayaran -->
+    <!-- Modal Preview Foto Bukti Pembayaran (Ukuran Layar Handphone) -->
     <div class="modal fade" id="modalBuktiBayar" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content retro-modal-box">
-                <div class="modal-header border-bottom border-warning">
-                    <h5 class="modal-title text-mustard fw-bold" id="modalBuktiJudul">BUKTI PEMBAYARAN</h5>
+                <div class="modal-header border-bottom border-warning py-2 px-3">
+                    <h6 class="modal-title text-mustard fw-bold mb-0" id="modalBuktiJudul">BUKTI PEMBAYARAN</h6>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body text-center">
-                    <img id="modalBuktiImg" src="" alt="Screenshot Bukti Pembayaran" class="img-fluid border border-2 border-warning mb-3" style="max-height: 420px; object-fit: contain;">
+                <div class="modal-body text-center p-3">
+                    <div class="retro-phone-frame mx-auto mb-3">
+                        <img id="modalBuktiImg" src="" alt="Screenshot Bukti Pembayaran" class="retro-phone-screenshot">
+                    </div>
                     <div class="retro-dp-summary p-2 text-start small">
                         <div class="d-flex justify-content-between">
                             <span class="retro-text">Customer:</span>
@@ -273,10 +283,10 @@ $query_bookings = $koneksi->query("SELECT * FROM bookings ORDER BY id_booking AS
                         </div>
                         <div class="d-flex justify-content-between">
                             <span class="retro-text">Service:</span>
-                            <strong id="modalBuktiService" class="text-cream"></strong>
+                            <strong id="modalBuktiService" class="text-cream text-end" style="max-width: 150px;"></strong>
                         </div>
                         <div class="d-flex justify-content-between">
-                            <span class="retro-text">Nominal DP QRIS:</span>
+                            <span class="retro-text">DP QRIS:</span>
                             <strong id="modalBuktiDp" class="text-mustard"></strong>
                         </div>
                     </div>
@@ -286,7 +296,7 @@ $query_bookings = $koneksi->query("SELECT * FROM bookings ORDER BY id_booking AS
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="script.js"></script>
+    <script src="script.js?v=6"></script>
 </body>
 
 </html>

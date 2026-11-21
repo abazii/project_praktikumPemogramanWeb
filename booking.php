@@ -99,17 +99,24 @@ $pesan_teks   = isset($_GET['pesan']) ? $_GET['pesan'] : '';
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label retro-label">PILIH SERVICES *</label>
-                                <select id="selectService" name="nama_service" class="form-select retro-input" required>
-                                    <option value="" data-harga="0">-- Pilih Layanan Barberbor --</option>
+                                <label for="selectService" class="form-label retro-label">PILIH SERVICES (BISA PILIH LEBIH DARI 1) *</label>
+                                <select id="selectService" name="service_cadangan" class="form-select retro-input">
+                                    <option value="" data-harga="0">-- Pilih / Tambah Layanan Barberbor --</option>
                                     <option value="Haircuts Pro" data-harga="30000">Haircuts Pro - Rp 30.000</option>
                                     <option value="Haircut Kids" data-harga="25000">Haircut Kids - Rp 25.000</option>
                                     <option value="Shaves, Beard & Mustache Trim" data-harga="20000">Shaves, Beard & Mustache Trim - Rp 20.000</option>
-                                    <option value="Shoescare Deep Cleaning" data-harga="25000">Shoescare Deep Cleaning - Rp 25.000</option>
+                                    <option value="Hair Coloring" data-harga="100000">Hair Coloring - Rp 100.000</option>
                                     <option value="Hair Coloring Basic" data-harga="45000">Hair Coloring Basic - Rp 45.000</option>
                                     <option value="Hair Coloring Fashion" data-harga="65000">Hair Coloring Fashion - Rp 65.000</option>
                                     <option value="Haircare Treatment" data-harga="60000">Haircare Treatment - Rp 60.000</option>
                                 </select>
+                                <small class="text-warning d-block mt-1">
+                                    * Klik dropdown untuk memilih layanan. Setelah 1 layanan masuk ke daftar di bawah, klik dropdown lagi jika ingin menambah layanan berikutnya.
+                                </small>
+
+                                <!-- Daftar Layanan yang Dipilih Customer -->
+                                <div id="listServiceDipilih" class="mt-2 d-flex flex-column gap-2"></div>
+
                                 <input type="hidden" id="inputHargaService" name="harga_service" value="0">
                             </div>
 
@@ -131,28 +138,7 @@ $pesan_teks   = isset($_GET['pesan']) ? $_GET['pesan'] : '';
                                 <div class="retro-qris-box p-3 text-center mb-3">
                                     <span class="badge retro-price-badge mb-2">SCAN QRIS OFFICIAL BARBERBOR</span>
                                     <div class="qris-svg-wrapper mx-auto my-2">
-                                        <svg width="160" height="160" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
-                                            <rect width="160" height="160" fill="#F5E6CC" />
-                                            <rect x="12" y="12" width="40" height="40" fill="none" stroke="#1C140D" stroke-width="6" />
-                                            <rect x="22" y="22" width="20" height="20" fill="#1C140D" />
-                                            <rect x="108" y="12" width="40" height="40" fill="none" stroke="#1C140D" stroke-width="6" />
-                                            <rect x="118" y="22" width="20" height="20" fill="#1C140D" />
-                                            <rect x="12" y="108" width="40" height="40" fill="none" stroke="#1C140D" stroke-width="6" />
-                                            <rect x="22" y="118" width="20" height="20" fill="#1C140D" />
-                                            <rect x="65" y="15" width="10" height="10" fill="#1C140D" />
-                                            <rect x="85" y="25" width="12" height="12" fill="#B84A27" />
-                                            <rect x="65" y="45" width="25" height="10" fill="#1C140D" />
-                                            <rect x="15" y="68" width="18" height="12" fill="#1C140D" />
-                                            <rect x="45" y="65" width="35" height="28" fill="#1C140D" />
-                                            <text x="62" y="83" font-size="10" font-weight="bold" fill="#F5E6CC" text-anchor="middle">QRIS</text>
-                                            <rect x="92" y="68" width="15" height="15" fill="#1C140D" />
-                                            <rect x="120" y="65" width="25" height="12" fill="#1C140D" />
-                                            <rect x="68" y="105" width="14" height="14" fill="#1C140D" />
-                                            <rect x="95" y="108" width="22" height="12" fill="#B84A27" />
-                                            <rect x="128" y="105" width="18" height="22" fill="#1C140D" />
-                                            <rect x="68" y="132" width="32" height="14" fill="#1C140D" />
-                                            <rect x="112" y="135" width="34" height="11" fill="#1C140D" />
-                                        </svg>
+                                        <img src="uploads/QRIS BARBERBOR.jpeg" alt="QRIS">
                                     </div>
                                     <small class="d-block text-dark fw-bold">NMID: ID102026BARBERBOR • A/N BARBERBOR STUDIO</small>
                                 </div>
@@ -164,24 +150,13 @@ $pesan_teks   = isset($_GET['pesan']) ? $_GET['pesan'] : '';
                                 </small>
                             </div>
 
-                            <!-- Input Upload Foto Screenshot Bukti Pembayaran -->
+                            <!-- Input Upload Foto Screenshot Bukti Pembayaran (Tanpa Preview) -->
                             <div class="mb-4">
                                 <label for="inputBuktiBayar" class="form-label retro-label">SCREENSHOT BUKTI PEMBAYARAN (KHUSUS FOTO) *</label>
                                 <input type="file" id="inputBuktiBayar" name="bukti_pembayaran" class="form-control retro-input" accept="image/png, image/jpeg, image/jpg, image/webp" required>
                                 <small class="text-warning d-block mt-1">
                                     * Hanya bisa upload file foto (JPG, JPEG, PNG, WEBP).
                                 </small>
-
-                                <!-- Preview Mini Foto yang Dipilih -->
-                                <div id="previewBuktiBox" class="retro-upload-preview mt-2 p-2" style="display: none;">
-                                    <div class="d-flex align-items-center gap-3">
-                                        <img id="previewBuktiImg" src="" alt="Preview Bukti" class="retro-preview-mini">
-                                        <div>
-                                            <span class="badge retro-price-badge">FOTO SIAP DIUNGGAH</span>
-                                            <small id="previewBuktiNama" class="d-block retro-text mt-1"></small>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
 
                             <button type="submit" class="btn retro-btn-primary w-100">

@@ -30,7 +30,7 @@ require 'koneksi.php';
                         <span class="text-mustard">BARBERBOR</span>
                     </h1>
                     <p class="retro-lead mt-3 mb-4">
-                        Halo, <strong><?= htmlspecialchars($_SESSION['nama_lengkap']); ?></strong>! Nikmati potongan rambut klasik bergaya retro dengan sentuhan kapster profesional.
+                        Halo, <strong><?= htmlspecialchars($_SESSION['nama_lengkap']); ?></strong>! Nikmati potongan rambut terbaik sesuai keinginan dengan sentuhan kapster profesional.
                     </p>
                     <div class="d-flex flex-wrap gap-3">
                         <a href="booking.php" class="btn retro-btn-primary">BOOKING SEKARANG →</a>
@@ -43,9 +43,9 @@ require 'koneksi.php';
                     <div class="retro-sticker-card">
                         <div class="retro-barber-pole"></div>
                         <div class="p-4">
-                            <span class="sticker-tag">CLASSIC & RETRO CUTS</span>
+                            <span class="sticker-tag">PROFESIONAL CUTS</span>
                             <h2 class="sticker-title mt-2">BARBERBOR</h2>
-                            <p class="sticker-sub mb-3">Barbershop & Shoescare</p>
+                            <p class="sticker-sub mb-3">Barbershop Terbaik</p>
                             <div class="sticker-quote">
                                 "NIKMATI BANYAK KEUNTUNGAN DENGAN BOOKING ONLINE LEBIH CEPAT TANPA ANTRI LAMA!"
                             </div>
@@ -68,7 +68,7 @@ require 'koneksi.php';
             <div class="row gy-4 align-items-center">
                 <div class="col-lg-7">
                     <p class="retro-highlight-text mb-4">
-                        Kami memulai sebuah perubahan besar dengan mendirikan <strong>Barberbor Barbershop and Shoescare</strong> yang memadukan atmosfer klasik retro dengan pelayanan modern berkualitas tinggi.
+                        Kami memulai sebuah perubahan besar dengan mendirikan <strong>Barberbor</strong> yang memadukan tema klasik retro dengan pelayanan modern berkualitas tinggi.
                     </p>
                     <div class="row gy-3">
                         <div class="col-md-6">
@@ -77,7 +77,7 @@ require 'koneksi.php';
                             </p>
                             <p class="retro-text fw-bold text-mustard">
                                 we analyze, adapt and innovate.<br>
-                                #LEBIHBAIK bersama Barberbor & Shoescare.
+                                #LEBIHBAIK bersama Barberbor.
                             </p>
                         </div>
                         <div class="col-md-6">
@@ -115,7 +115,7 @@ require 'koneksi.php';
                     <div class="retro-service-item d-flex gap-3">
                         <div class="retro-service-icon">✂</div>
                         <div>
-                            <h4 class="retro-service-name">HAIRCUTS PRO <span class="badge retro-price-badge">Rp 30.000</span></h4>
+                            <h4 class="retro-service-name">HAIRCUTS PRO<span class="badge retro-price-badge">Rp 30.000</span></h4>
                             <p class="retro-text mb-0">Potong rambut profesional dengan berbagai macam fasilitas treatment terbaik untuk pria, termasuk keramas dan pijat kepala.</p>
                         </div>
                     </div>
@@ -146,10 +146,10 @@ require 'koneksi.php';
                 <!-- Service 4 -->
                 <div class="col-md-6">
                     <div class="retro-service-item d-flex gap-3">
-                        <div class="retro-service-icon">👟</div>
+                        <div class="retro-service-icon">🖌️</div>
                         <div>
-                            <h4 class="retro-service-name">SHOESCARE <span class="badge retro-price-badge">Rp 25.000</span></h4>
-                            <p class="retro-text mb-0">Layanan cuci sepatu dengan metode Deep Cleaning serta treatment perawatan sepatu lainnya agar kembali bersih.</p>
+                            <h4 class="retro-service-name">HAIR COLORING<span class="badge retro-price-badge">Rp 100.000</span></h4>
+                            <p class="retro-text mb-0">Layanan pewarnaan rambut profesional dengan hasil warna tajam, merata, dan tetap menjaga kesehatan rambut.</p>
                         </div>
                     </div>
                 </div>
@@ -173,7 +173,7 @@ require 'koneksi.php';
             <div class="row gy-4 align-items-center">
                 <div class="col-lg-7">
                     <p class="retro-text mb-2">
-                        Dengan kapster profesional yang telah melalui proses seleksi ketat, jaminan kepuasan bagi kamu pelanggan setia Barberbor & Shoescare.
+                        Dengan kapster profesional yang telah melalui proses seleksi ketat, jaminan kepuasan bagi kamu pelanggan setia Barberbor.
                     </p>
                     <p class="fw-bold text-mustard mb-4">#NyamanTampanBarberbor</p>
 
@@ -191,8 +191,8 @@ require 'koneksi.php';
                             <span class="price-val">Rp 20.000</span>
                         </div>
                         <div class="retro-price-row">
-                            <span>Shoescare Deep Cleaning</span>
-                            <span class="price-val">Rp 25.000</span>
+                            <span>Hair Coloring</span>
+                            <span class="price-val">Rp 100.000</span>
                         </div>
                         <div class="retro-price-row">
                             <span>Hair Coloring Basic</span>

@@ -16,7 +16,7 @@ $halaman_aktif = basename($_SERVER['PHP_SELF']);
         <!-- Logo Kiri Atas -->
         <a class="navbar-brand retro-nav-logo" href="home.php">
             <span class="logo-top">BARBERBOR</span>
-            <span class="logo-bottom">BARBERSHOP & SHOESCARE</span>
+            <span class="logo-bottom">BARBERSHOP TERBAIK</span>
         </a>
 
         <!-- Toggle Mobile -->

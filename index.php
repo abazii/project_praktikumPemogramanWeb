@@ -36,7 +36,7 @@ $sukses = isset($_GET['sukses']) ? $_GET['sukses'] : '';
                 <div class="retro-badge-logo mx-auto mb-2">
                     <span class="badge-sub">EST. 1998 • GOOD BARBER FOR GOOD PEOPLE</span>
                     <h1 class="retro-brand-title mb-0">BARBERBOR</h1>
-                    <span class="badge-sub">BARBERSHOP & SHOESCARE</span>
+                    <span class="badge-sub">BARBERSHOP TERBAIK</span>
                 </div>
                 <p class="retro-subtitle mt-2 mb-0">Silakan login menggunakan Email dan Password Anda</p>
             </div>

@@ -37,16 +37,16 @@ require 'koneksi.php';
             <div class="row gy-4 align-items-start">
                 <div class="col-lg-8">
                     <p class="retro-highlight-text mb-4">
-                        Hello bro, <strong>Barberbor Barbershop & Shoescare</strong> adalah perusahaan yang bergerak di bidang pengelolaan Barbershop klasik bertema retro dengan merek terdaftar <strong>"BARBERBOR"</strong>.
+                        Hello bro, <strong>Barberborshop</strong> adalah perusahaan yang bergerak di bidang pengelolaan Barbershop klasik bertema retro dengan merek terdaftar <strong>"BARBERBOR"</strong>.
                     </p>
                     <p class="retro-text mb-3">
-                        Barberbor Barbershop & Shoescare berdiri dan berdomisili di Daerah Istimewa Yogyakarta. Kami menggabungkan nuansa barbershop klasik era 90-an dengan standar kebersihan modern, alat cukur steril, dan layanan perawatan sepatu (Shoescare).
+                        Barberbor Barbershop berdiri dan berdomisili di Daerah Istimewa Yogyakarta. Kami menggabungkan nuansa barbershop klasik era 90-an dengan standar kebersihan modern, dan alat cukur steril.
                     </p>
                     <p class="retro-text mb-3">
                         Dengan karakteristik retro yang kuat, musik klasik yang hangat, serta kapster berpengalaman, tidak heran jika kami sangat dekat dengan customer loyal Barberbor.
                     </p>
                     <p class="fw-bold text-mustard mb-4">
-                        #LEBIHBAIK bersama Barberbor Barbershop & Shoescare.
+                        #LEBIHBAIK bersama Barberborshop.
                     </p>
                 </div>
 
