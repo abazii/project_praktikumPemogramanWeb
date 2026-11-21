@@ -37,10 +37,10 @@ $halaman_aktif = basename($_SERVER['PHP_SELF']);
                     <a class="nav-link retro-nav-link <?= ($halaman_aktif == 'booking.php') ? 'active' : ''; ?>" href="booking.php">BOOKING</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link retro-nav-link <?= ($halaman_aktif == 'gallery.php') ? 'active' : ''; ?>" href="gallery.php">GALLERY</a>
+                    <a class="nav-link retro-nav-link" href="javascript:void(0);">GALLERY</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link retro-nav-link <?= ($halaman_aktif == 'contact.php') ? 'active' : ''; ?>" href="contact.php">CONTACT</a>
+                    <a class="nav-link retro-nav-link" href="javascript:void(0);">CONTACT</a>
                 </li>
                 <li class="nav-item ms-lg-2">
                     <a href="logout.php" class="btn retro-btn-logout btn-sm" onclick="return confirm('Keluar dari akun customer?')">

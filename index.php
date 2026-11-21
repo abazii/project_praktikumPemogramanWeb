@@ -12,10 +12,12 @@ if (isset($_SESSION['role'])) {
     }
 }
 
-$error = isset($_GET['error']) ? $_GET['error'] : '';
+$error  = isset($_GET['error']) ? $_GET['error'] : '';
+$sukses = isset($_GET['sukses']) ? $_GET['sukses'] : '';
 ?>
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,11 +25,12 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body class="retro-body login-page-bg">
 
     <div class="container min-vh-100 d-flex align-items-center justify-content-center py-5">
-        <div class="retro-login-box w-100" style="max-width: 520px;">
-            
+        <div class="retro-login-box w-100" style="max-width: 480px;">
+
             <!-- Header Logo Retro -->
             <div class="text-center mb-4">
                 <div class="retro-badge-logo mx-auto mb-2">
@@ -35,81 +38,53 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                     <h1 class="retro-brand-title mb-0">BARBERBOR</h1>
                     <span class="badge-sub">BARBERSHOP & SHOESCARE</span>
                 </div>
-                <p class="retro-subtitle mt-2">Silakan pilih akses masuk sebelum memasuki website</p>
+                <p class="retro-subtitle mt-2 mb-0">Silakan login menggunakan Email dan Password Anda</p>
             </div>
 
-            <!-- Notifikasi Error jika ada -->
+            <!-- Notifikasi Error / Sukses -->
             <?php if ($error != ''): ?>
                 <div class="alert retro-alert-danger mb-3" role="alert">
                     <?= htmlspecialchars($error); ?>
                 </div>
             <?php endif; ?>
 
-            <!-- Tombol Switch Role Login -->
-            <div class="d-flex gap-2 mb-4">
-                <button type="button" id="btnTabCustomer" class="btn retro-tab-btn active w-50">
-                    LOGIN CUSTOMER
+            <?php if ($sukses != ''): ?>
+                <div class="alert retro-alert-success mb-3" role="alert">
+                    <?= htmlspecialchars($sukses); ?>
+                </div>
+            <?php endif; ?>
+
+            <!-- Form Login (Hanya Email & Password) -->
+            <form id="formLogin" action="proses_login.php" method="POST" novalidate>
+                <div class="mb-3">
+                    <label for="loginEmail" class="form-label retro-label">EMAIL *</label>
+                    <input type="email" id="loginEmail" name="email" class="form-control retro-input" placeholder="Masukkan email Anda" required>
+                </div>
+
+                <div class="mb-4">
+                    <label for="loginPassword" class="form-label retro-label">PASSWORD *</label>
+                    <input type="password" id="loginPassword" name="password" class="form-control retro-input" placeholder="Masukkan password Anda" required>
+                </div>
+
+                <button type="submit" class="btn retro-btn-primary w-100 mb-3">
+                    LOGIN MASUK →
                 </button>
-                <button type="button" id="btnTabOwner" class="btn retro-tab-btn w-50">
-                    LOGIN OWNER
-                </button>
+            </form>
+
+            <hr class="retro-divider my-3">
+
+            <!-- Link ke Halaman Sign In -->
+            <div class="text-center">
+                <p class="retro-text small mb-2">Belum punya akun customer Barberbor?</p>
+                <a href="signin.php" class="btn retro-btn-outline w-100">
+                    DAFTAR AKUN BARU (SIGN IN)
+                </a>
             </div>
-
-            <!-- FORM 1: LOGIN CUSTOMER -->
-            <form id="formCustomer" action="proses_login.php" method="POST">
-                <input type="hidden" name="role" value="customer">
-                
-                <div class="mb-3">
-                    <label class="form-label retro-label">NAMA LENGKAP *</label>
-                    <input type="text" name="nama_lengkap" class="form-control retro-input" placeholder="Masukkan nama lengkap Anda" required>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label retro-label">NOMOR HANDPHONE *</label>
-                    <input type="tel" name="no_hp" class="form-control retro-input" placeholder="Contoh: 081234567890" required>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label retro-label">ALAMAT LENGKAP *</label>
-                    <textarea name="alamat" rows="2" class="form-control retro-input" placeholder="Masukkan alamat tempat tinggal" required></textarea>
-                </div>
-
-                <div class="mb-4">
-                    <label class="form-label retro-label">EMAIL *</label>
-                    <input type="email" name="email" class="form-control retro-input" placeholder="nama@email.com" required>
-                </div>
-
-                <button type="submit" class="btn retro-btn-primary w-100">
-                    MASUK KE WEBSITE BARBERBOR →
-                </button>
-            </form>
-
-            <!-- FORM 2: LOGIN OWNER -->
-            <form id="formOwner" action="proses_login.php" method="POST" style="display: none;">
-                <input type="hidden" name="role" value="owner">
-
-                <div class="retro-info-note mb-3">
-                    * Akses khusus Owner Barberbor untuk mengelola antrian booking.
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label retro-label">USERNAME OWNER *</label>
-                    <input type="text" name="username" class="form-control retro-input" placeholder="Masukkan username owner" required>
-                </div>
-
-                <div class="mb-4">
-                    <label class="form-label retro-label">PASSWORD OWNER *</label>
-                    <input type="password" name="password" class="form-control retro-input" placeholder="Masukkan password owner" required>
-                </div>
-
-                <button type="submit" class="btn retro-btn-primary w-100">
-                    MASUK DASHBOARD OWNER →
-                </button>
-            </form>
 
         </div>
     </div>
 
     <script src="script.js"></script>
 </body>
+
 </html>
