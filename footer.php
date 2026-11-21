@@ -31,9 +31,9 @@
             <div class="col-md-3">
                 <h4 class="retro-footer-title">KEEP IN TOUCH</h4>
                 <div class="d-flex gap-2 mt-3">
-                    <a href="contact.php" class="retro-social-box" title="Instagram">IG</a>
-                    <a href="contact.php" class="retro-social-box" title="Facebook">FB</a>
-                    <a href="contact.php" class="retro-social-box" title="WhatsApp">WA</a>
+                    <a href="javascript:void(0);" class="retro-social-box" title="Instagram">IG</a>
+                    <a href="javascript:void(0);" class="retro-social-box" title="Facebook">FB</a>
+                    <a href="javascript:void(0);" class="retro-social-box" title="WhatsApp">WA</a>
                 </div>
             </div>
         </div>
