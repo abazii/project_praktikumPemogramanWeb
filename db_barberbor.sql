@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 22, 2026 at 02:16 PM
+-- Generation Time: Nov 22, 2026 at 02:45 PM
 -- Server version: 10.4.32-MariaDB
--- PHP Version: 8.0.30
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `cek`
+-- Database: `db_barberbor`
 --
 
 -- --------------------------------------------------------
@@ -32,11 +32,18 @@ CREATE TABLE `bookings` (
   `id_customer` int(11) UNSIGNED NOT NULL,
   `total_harga` int(11) UNSIGNED NOT NULL,
   `jumlah_dp` int(11) UNSIGNED NOT NULL,
-  `metode_pembayaran` enum('QRIS','Transfer Bank','Tunai') NOT NULL DEFAULT 'QRIS',
+  `metode_pembayaran` enum('QRIS','Transfer Bank','Tunai') DEFAULT 'QRIS',
   `bukti_pembayaran` varchar(255) NOT NULL,
-  `status_antrian` enum('Menunggu','Antrian Berikutnya','Sedang Diproses','Selesai','Dibatalkan') NOT NULL DEFAULT 'Menunggu',
+  `status_antrian` enum('Menunggu','Antrian Berikutnya','Sedang Diproses','Selesai','Dibatalkan') DEFAULT 'Menunggu',
   `waktu_booking` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `bookings`
+--
+
+INSERT INTO `bookings` (`id_booking`, `id_customer`, `total_harga`, `jumlah_dp`, `metode_pembayaran`, `bukti_pembayaran`, `status_antrian`, `waktu_booking`) VALUES
+(1, 1, 55000, 27500, 'QRIS', 'bukti_1795354612_516.jpg', 'Menunggu', '2026-11-22 13:36:52');
 
 -- --------------------------------------------------------
 
@@ -50,6 +57,14 @@ CREATE TABLE `booking_details` (
   `id_service` int(11) UNSIGNED NOT NULL,
   `harga_saat_booking` int(11) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `booking_details`
+--
+
+INSERT INTO `booking_details` (`id_detail`, `id_booking`, `id_service`, `harga_saat_booking`) VALUES
+(1, 1, 1, 30000),
+(2, 1, 2, 25000);
 
 -- --------------------------------------------------------
 
@@ -72,7 +87,7 @@ CREATE TABLE `customers` (
 --
 
 INSERT INTO `customers` (`id_customer`, `nama_lengkap`, `no_hp`, `alamat`, `email`, `password`, `created_at`) VALUES
-(1, 'asep picek', '0123456789', 'babarsari city', 'asep@gmail.com', '$2y$10$dTFB8Pnuh/OttWK.dKX8f.sZ7IRhiaF0zNh9OYnZyH7oJKzzeJa.K', '2026-11-21 09:38:27');
+(1, 'asep picek', '0123456789', 'kalitalang', 'asep@gmail.com', '$2y$10$Y/o0HrBGf0sXFa14taq00e70IlsWVa1WGMQzDwxTLANennqJpV/jW', '2026-11-22 13:36:07');
 
 -- --------------------------------------------------------
 
@@ -92,7 +107,7 @@ CREATE TABLE `owners` (
 --
 
 INSERT INTO `owners` (`id_owner`, `username`, `email`, `password`) VALUES
-(1, 'Owner Barberbor', 'owner@barberbor.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');
+(1, 'Owner Barberbor', 'owner@barberbor.com', 'barberbor123');
 
 -- --------------------------------------------------------
 
@@ -120,8 +135,21 @@ CREATE TABLE `services` (
   `id_service` int(11) UNSIGNED NOT NULL,
   `nama_service` varchar(100) NOT NULL,
   `harga` int(11) UNSIGNED NOT NULL,
-  `is_active` tinyint(1) NOT NULL DEFAULT 1
+  `is_active` tinyint(1) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `services`
+--
+
+INSERT INTO `services` (`id_service`, `nama_service`, `harga`, `is_active`) VALUES
+(1, 'Haircuts Pro', 30000, 1),
+(2, 'Haircut Kids', 25000, 1),
+(3, 'Shaves, Beard & Mustache Trim', 20000, 1),
+(4, 'Hair Coloring', 100000, 1),
+(5, 'Hair Coloring Basic', 45000, 1),
+(6, 'Hair Coloring Fashion', 65000, 1),
+(7, 'Haircare Treatment', 60000, 1);
 
 --
 -- Indexes for dumped tables
@@ -132,46 +160,44 @@ CREATE TABLE `services` (
 --
 ALTER TABLE `bookings`
   ADD PRIMARY KEY (`id_booking`),
-  ADD KEY `idx_bookings_customer` (`id_customer`),
-  ADD KEY `idx_bookings_status` (`status_antrian`);
+  ADD KEY `fk_bookings_customer` (`id_customer`);
 
 --
 -- Indexes for table `booking_details`
 --
 ALTER TABLE `booking_details`
   ADD PRIMARY KEY (`id_detail`),
-  ADD KEY `idx_detail_booking` (`id_booking`),
-  ADD KEY `idx_detail_service` (`id_service`);
+  ADD KEY `fk_detail_booking` (`id_booking`),
+  ADD KEY `fk_detail_service` (`id_service`);
 
 --
 -- Indexes for table `customers`
 --
 ALTER TABLE `customers`
   ADD PRIMARY KEY (`id_customer`),
-  ADD UNIQUE KEY `uk_customers_email` (`email`),
-  ADD UNIQUE KEY `uk_customers_no_hp` (`no_hp`);
+  ADD UNIQUE KEY `email` (`email`);
 
 --
 -- Indexes for table `owners`
 --
 ALTER TABLE `owners`
   ADD PRIMARY KEY (`id_owner`),
-  ADD UNIQUE KEY `uk_owners_username` (`username`),
-  ADD UNIQUE KEY `uk_owners_email` (`email`);
+  ADD UNIQUE KEY `username` (`username`),
+  ADD UNIQUE KEY `email` (`email`);
 
 --
 -- Indexes for table `pesan_kontak`
 --
 ALTER TABLE `pesan_kontak`
   ADD PRIMARY KEY (`id_pesan`),
-  ADD KEY `idx_pesan_customer` (`id_customer`);
+  ADD KEY `fk_kontak_customer` (`id_customer`);
 
 --
 -- Indexes for table `services`
 --
 ALTER TABLE `services`
   ADD PRIMARY KEY (`id_service`),
-  ADD UNIQUE KEY `uk_nama_service` (`nama_service`);
+  ADD UNIQUE KEY `nama_service` (`nama_service`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -181,13 +207,13 @@ ALTER TABLE `services`
 -- AUTO_INCREMENT for table `bookings`
 --
 ALTER TABLE `bookings`
-  MODIFY `id_booking` int(11) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id_booking` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `booking_details`
 --
 ALTER TABLE `booking_details`
-  MODIFY `id_detail` int(11) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id_detail` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `customers`
@@ -211,7 +237,7 @@ ALTER TABLE `pesan_kontak`
 -- AUTO_INCREMENT for table `services`
 --
 ALTER TABLE `services`
-  MODIFY `id_service` int(11) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id_service` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- Constraints for dumped tables
@@ -221,7 +247,7 @@ ALTER TABLE `services`
 -- Constraints for table `bookings`
 --
 ALTER TABLE `bookings`
-  ADD CONSTRAINT `fk_bookings_customer` FOREIGN KEY (`id_customer`) REFERENCES `customers` (`id_customer`) ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_bookings_customer` FOREIGN KEY (`id_customer`) REFERENCES `customers` (`id_customer`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `booking_details`
@@ -234,7 +260,7 @@ ALTER TABLE `booking_details`
 -- Constraints for table `pesan_kontak`
 --
 ALTER TABLE `pesan_kontak`
-  ADD CONSTRAINT `fk_pesan_customer` FOREIGN KEY (`id_customer`) REFERENCES `customers` (`id_customer`) ON DELETE SET NULL ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_kontak_customer` FOREIGN KEY (`id_customer`) REFERENCES `customers` (`id_customer`) ON DELETE SET NULL ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

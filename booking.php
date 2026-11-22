@@ -150,8 +150,8 @@ $pesan_teks   = isset($_GET['pesan']) ? $_GET['pesan'] : '';
                                 <div class="retro-qris-box p-3 text-center mb-3">
                                     <span class="badge retro-price-badge mb-2">SCAN QRIS OFFICIAL BARBERBOR</span>
                                     <div class="qris-svg-wrapper mx-auto my-2">
-                                        <svg width="160" height="160" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
-                                            <img src="/uploads/QRIS_BARBERBOR.jpeg" alt="hi">
+                                        <svg width="50" height="50" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+                                            <img src="uploads/QRIS_BARBERBORshop.jpeg" alt="qris">
                                         </svg>
                                     </div>
                                     <small class="d-block text-dark fw-bold">NMID: ID102026BARBERBOR • A/N BARBERBOR STUDIO</small>
