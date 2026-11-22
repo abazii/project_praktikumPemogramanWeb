@@ -7,11 +7,21 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'customer') {
     exit();
 }
 
-$email_user = $_SESSION['email'];
+$id_customer = (int) $_SESSION['id_customer'];
 
-// Ambil antrian aktif milik customer (yang statusnya BELUM 'Selesai')
-$stmt_riwayat = $koneksi->prepare("SELECT * FROM bookings WHERE email_customer = ? AND status_antrian != 'Selesai' ORDER BY id_booking DESC");
-$stmt_riwayat->bind_param("s", $email_user);
+// Ambil antrian aktif milik customer beserta gabungan layanan dari booking_details
+$sql_riwayat = "SELECT b.*, c.nama_lengkap,
+                GROUP_CONCAT(s.nama_service SEPARATOR ' + ') AS daftar_service
+                FROM bookings b
+                JOIN customers c ON b.id_customer = c.id_customer
+                JOIN booking_details bd ON b.id_booking = bd.id_booking
+                JOIN services s ON bd.id_service = s.id_service
+                WHERE b.id_customer = ? AND b.status_antrian NOT IN ('Selesai', 'Dibatalkan')
+                GROUP BY b.id_booking
+                ORDER BY b.id_booking DESC";
+
+$stmt_riwayat = $koneksi->prepare($sql_riwayat);
+$stmt_riwayat->bind_param("i", $id_customer);
 $stmt_riwayat->execute();
 $riwayat_booking = $stmt_riwayat->get_result();
 
@@ -30,9 +40,9 @@ if (isset($_GET['ajax_antrian']) && $_GET['ajax_antrian'] == '1') {
             echo '<span class="badge retro-price-badge">NO. ANTRIAN #' . $row['id_booking'] . '</span>';
             echo '<span class="badge bg-dark text-warning border border-warning">' . strtoupper(htmlspecialchars($row['status_antrian'])) . '</span>';
             echo '</div>';
-            echo '<h5 class="mb-1 text-cream">' . htmlspecialchars($row['nama_service']) . '</h5>';
-            echo '<p class="small mb-1 retro-text">Atas Nama: <strong>' . htmlspecialchars($row['nama_customer']) . '</strong></p>';
-            echo '<p class="small mb-0 retro-text">Harga: Rp ' . number_format($row['harga_service'], 0, ',', '.') . ' | DP QRIS: <span class="text-mustard fw-bold">Rp ' . number_format($row['jumlah_dp'], 0, ',', '.') . '</span></p>';
+            echo '<h5 class="mb-1 text-cream">' . htmlspecialchars($row['daftar_service']) . '</h5>';
+            echo '<p class="small mb-1 retro-text">Atas Nama: <strong>' . htmlspecialchars($row['nama_lengkap']) . '</strong></p>';
+            echo '<p class="small mb-0 retro-text">Total Harga: Rp ' . number_format($row['total_harga'], 0, ',', '.') . ' | DP QRIS: <span class="text-mustard fw-bold">Rp ' . number_format($row['jumlah_dp'], 0, ',', '.') . '</span></p>';
             echo '</div>';
         }
     } else {
@@ -40,6 +50,9 @@ if (isset($_GET['ajax_antrian']) && $_GET['ajax_antrian'] == '1') {
     }
     exit();
 }
+
+// Ambil daftar layanan aktif dari tabel services untuk dropdown
+$query_services = $koneksi->query("SELECT id_service, nama_service, harga FROM services WHERE is_active = 1 ORDER BY id_service ASC");
 
 $status_pesan = isset($_GET['status']) ? $_GET['status'] : '';
 $pesan_teks   = isset($_GET['pesan']) ? $_GET['pesan'] : '';
@@ -52,7 +65,7 @@ $pesan_teks   = isset($_GET['pesan']) ? $_GET['pesan'] : '';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Booking - BARBERBOR Retro Barbershop</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=7">
 </head>
 
 <body class="retro-body">
@@ -90,25 +103,24 @@ $pesan_teks   = isset($_GET['pesan']) ? $_GET['pesan'] : '';
                         <form id="formBooking" action="proses_booking.php" method="POST" enctype="multipart/form-data">
                             <div class="mb-3">
                                 <label class="form-label retro-label">NAMA LENGKAP *</label>
-                                <input type="text" name="nama_customer" class="form-control retro-input" value="<?= htmlspecialchars($_SESSION['nama_lengkap']); ?>" required>
+                                <input type="text" name="nama_customer" class="form-control retro-input" value="<?= htmlspecialchars($_SESSION['nama_lengkap']); ?>" readonly>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label retro-label">NOMOR HANDPHONE *</label>
-                                <input type="tel" name="no_hp" class="form-control retro-input" value="<?= htmlspecialchars($_SESSION['no_hp']); ?>" required>
+                                <input type="tel" name="no_hp" class="form-control retro-input" value="<?= htmlspecialchars($_SESSION['no_hp']); ?>" readonly>
                             </div>
 
+                            <!-- Dropdown Services Dinamis dari Tabel services -->
                             <div class="mb-3">
                                 <label for="selectService" class="form-label retro-label">PILIH SERVICES (BISA PILIH LEBIH DARI 1) *</label>
-                                <select id="selectService" name="service_cadangan" class="form-select retro-input">
+                                <select id="selectService" class="form-select retro-input">
                                     <option value="" data-harga="0">-- Pilih / Tambah Layanan Barberbor --</option>
-                                    <option value="Haircuts Pro" data-harga="30000">Haircuts Pro - Rp 30.000</option>
-                                    <option value="Haircut Kids" data-harga="25000">Haircut Kids - Rp 25.000</option>
-                                    <option value="Shaves, Beard & Mustache Trim" data-harga="20000">Shaves, Beard & Mustache Trim - Rp 20.000</option>
-                                    <option value="Hair Coloring" data-harga="100000">Hair Coloring - Rp 100.000</option>
-                                    <option value="Hair Coloring Basic" data-harga="45000">Hair Coloring Basic - Rp 45.000</option>
-                                    <option value="Hair Coloring Fashion" data-harga="65000">Hair Coloring Fashion - Rp 65.000</option>
-                                    <option value="Haircare Treatment" data-harga="60000">Haircare Treatment - Rp 60.000</option>
+                                    <?php while ($srv = $query_services->fetch_assoc()): ?>
+                                        <option value="<?= $srv['id_service']; ?>" data-nama="<?= htmlspecialchars($srv['nama_service']); ?>" data-harga="<?= $srv['harga']; ?>">
+                                            <?= htmlspecialchars($srv['nama_service']); ?> - Rp <?= number_format($srv['harga'], 0, ',', '.'); ?>
+                                        </option>
+                                    <?php endwhile; ?>
                                 </select>
                                 <small class="text-warning d-block mt-1">
                                     * Klik dropdown untuk memilih layanan. Setelah 1 layanan masuk ke daftar di bawah, klik dropdown lagi jika ingin menambah layanan berikutnya.
@@ -117,13 +129,13 @@ $pesan_teks   = isset($_GET['pesan']) ? $_GET['pesan'] : '';
                                 <!-- Daftar Layanan yang Dipilih Customer -->
                                 <div id="listServiceDipilih" class="mt-2 d-flex flex-column gap-2"></div>
 
-                                <input type="hidden" id="inputHargaService" name="harga_service" value="0">
+                                <input type="hidden" id="inputHargaService" name="total_harga" value="0">
                             </div>
 
                             <!-- Rincian Harga & Minimal DP 50% -->
                             <div class="retro-dp-summary p-3 mb-4">
                                 <div class="d-flex justify-content-between mb-1">
-                                    <span>Harga Service:</span>
+                                    <span>Total Harga Service:</span>
                                     <strong id="labelHargaService">Rp 0</strong>
                                 </div>
                                 <div class="d-flex justify-content-between text-mustard">
@@ -138,13 +150,15 @@ $pesan_teks   = isset($_GET['pesan']) ? $_GET['pesan'] : '';
                                 <div class="retro-qris-box p-3 text-center mb-3">
                                     <span class="badge retro-price-badge mb-2">SCAN QRIS OFFICIAL BARBERBOR</span>
                                     <div class="qris-svg-wrapper mx-auto my-2">
-                                        <img src="uploads/QRIS BARBERBOR.jpeg" alt="QRIS">
+                                        <svg width="160" height="160" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+                                            <img src="/uploads/QRIS_BARBERBOR.jpeg" alt="hi">
+                                        </svg>
                                     </div>
                                     <small class="d-block text-dark fw-bold">NMID: ID102026BARBERBOR • A/N BARBERBOR STUDIO</small>
                                 </div>
 
                                 <label class="form-label retro-label">NOMINAL TRANSFER DP QRIS (RP) *</label>
-                                <input type="number" id="inputJumlahDp" name="jumlah_dp" class="form-control retro-input" placeholder="Masukkan nominal DP (minimal 50% harga service)" min="0" required>
+                                <input type="number" id="inputJumlahDp" name="jumlah_dp" class="form-control retro-input" placeholder="Masukkan nominal DP (minimal 50% total harga)" min="0" required>
                                 <small class="text-warning d-block mt-1">
                                     * Jika tidak membayar DP atau nominal kurang dari 50%, booking tidak akan berhasil.
                                 </small>
@@ -192,10 +206,10 @@ $pesan_teks   = isset($_GET['pesan']) ? $_GET['pesan'] : '';
                                                 <?= strtoupper($row['status_antrian']); ?>
                                             </span>
                                         </div>
-                                        <h5 class="mb-1 text-cream"><?= htmlspecialchars($row['nama_service']); ?></h5>
-                                        <p class="small mb-1 retro-text">Atas Nama: <strong><?= htmlspecialchars($row['nama_customer']); ?></strong></p>
+                                        <h5 class="mb-1 text-cream"><?= htmlspecialchars($row['daftar_service']); ?></h5>
+                                        <p class="small mb-1 retro-text">Atas Nama: <strong><?= htmlspecialchars($row['nama_lengkap']); ?></strong></p>
                                         <p class="small mb-0 retro-text">
-                                            Harga: Rp <?= number_format($row['harga_service'], 0, ',', '.'); ?> |
+                                            Total Harga: Rp <?= number_format($row['total_harga'], 0, ',', '.'); ?> |
                                             DP QRIS: <span class="text-mustard fw-bold">Rp <?= number_format($row['jumlah_dp'], 0, ',', '.'); ?></span>
                                         </p>
                                     </div>

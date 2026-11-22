@@ -8,8 +8,17 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'owner') {
     exit();
 }
 
-// Ambil data booking dari database untuk diolah
-$result = $koneksi->query("SELECT * FROM bookings ORDER BY id_booking ASC");
+// Ambil data booking hasil JOIN dari customers, bookings, booking_details, dan services
+$sql_export = "SELECT b.*, c.nama_lengkap AS nama_customer, c.no_hp, c.email AS email_customer,
+               GROUP_CONCAT(s.nama_service SEPARATOR ' + ') AS nama_service
+               FROM bookings b
+               JOIN customers c ON b.id_customer = c.id_customer
+               JOIN booking_details bd ON b.id_booking = bd.id_booking
+               JOIN services s ON bd.id_service = s.id_service
+               GROUP BY b.id_booking
+               ORDER BY b.id_booking ASC";
+
+$result = $koneksi->query($sql_export);
 
 $rows_data         = [];
 $total_booking     = 0;
@@ -22,7 +31,7 @@ $count_diproses    = 0;
 $count_selesai     = 0;
 
 while ($row = $result->fetch_assoc()) {
-    $harga = (int) $row['harga_service'];
+    $harga = (int) $row['total_harga'];
     $dp    = (int) $row['jumlah_dp'];
     $sisa  = max(0, $harga - $dp);
 
@@ -40,9 +49,7 @@ while ($row = $result->fetch_assoc()) {
     $rows_data[] = $row;
 }
 
-// Helper konversi indeks kolom ke huruf Excel (0 -> A, 1 -> B, dst)
-function excelCol($index)
-{
+function excelCol($index) {
     $letter = '';
     while ($index >= 0) {
         $letter = chr($index % 26 + 65) . $letter;
@@ -51,22 +58,17 @@ function excelCol($index)
     return $letter;
 }
 
-// Helper membuat sel string XML
-function xmlStrCell($colIndex, $rowNum, $text, $style = 0)
-{
+function xmlStrCell($colIndex, $rowNum, $text, $style = 0) {
     $ref = excelCol($colIndex) . $rowNum;
     $escaped = htmlspecialchars((string)$text, ENT_XML1 | ENT_QUOTES, 'UTF-8');
     return '<c r="' . $ref . '" s="' . $style . '" t="inlineStr"><is><t>' . $escaped . '</t></is></c>';
 }
 
-// Helper membuat sel angka XML
-function xmlNumCell($colIndex, $rowNum, $num, $style = 0)
-{
+function xmlNumCell($colIndex, $rowNum, $num, $style = 0) {
     $ref = excelCol($colIndex) . $rowNum;
     return '<c r="' . $ref . '" s="' . $style . '"><v>' . (float)$num . '</v></c>';
 }
 
-// Susun baris-baris worksheet XML
 $sheetRows = [];
 
 // Judul Laporan
@@ -90,7 +92,7 @@ $headers = [
     'No. Handphone',
     'Email Customer',
     'Layanan (Service)',
-    'Harga Service (Rp)',
+    'Total Harga (Rp)',
     'DP QRIS Masuk (Rp)',
     'Sisa Pelunasan (Rp)',
     'Metode Bayar',
@@ -112,7 +114,7 @@ foreach ($rows_data as $item) {
     $c .= xmlStrCell(3, $rNum, $item['no_hp'], 0);
     $c .= xmlStrCell(4, $rNum, $item['email_customer'], 0);
     $c .= xmlStrCell(5, $rNum, $item['nama_service'], 0);
-    $c .= xmlNumCell(6, $rNum, $item['harga_service'], 2);
+    $c .= xmlNumCell(6, $rNum, $item['total_harga'], 2);
     $c .= xmlNumCell(7, $rNum, $item['jumlah_dp'], 2);
     $c .= xmlNumCell(8, $rNum, $item['sisa_bayar'], 2);
     $c .= xmlStrCell(9, $rNum, $item['metode_pembayaran'], 0);
@@ -122,14 +124,13 @@ foreach ($rows_data as $item) {
     $rNum++;
 }
 
-// Baris Total Keseluruhan di Bawah Tabel
+// Baris Total Keseluruhan
 $totalCells  = xmlStrCell(5, $rNum, 'TOTAL KESELURUHAN', 1);
 $totalCells .= xmlNumCell(6, $rNum, $total_omzet, 3);
 $totalCells .= xmlNumCell(7, $rNum, $total_dp_masuk, 3);
 $totalCells .= xmlNumCell(8, $rNum, $total_sisa_bayar, 3);
 $sheetRows[] = '<row r="' . $rNum . '">' . $totalCells . '</row>';
 
-// Komponen XML pembentuk file .xlsx
 $contentTypesXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
   <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
@@ -193,14 +194,13 @@ $sheet1Xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     <col min="3" max="3" width="26" customWidth="1"/>
     <col min="4" max="4" width="18" customWidth="1"/>
     <col min="5" max="5" width="28" customWidth="1"/>
-    <col min="6" max="6" width="30" customWidth="1"/>
+    <col min="6" max="6" width="32" customWidth="1"/>
     <col min="7" max="9" width="20" customWidth="1"/>
     <col min="10" max="11" width="20" customWidth="1"/>
   </cols>
   <sheetData>' . implode('', $sheetRows) . '</sheetData>
 </worksheet>';
 
-// Buat arsip ZIP menjadi file .xlsx di temporary file
 $tempFile = tempnam(sys_get_temp_dir(), 'xlsx');
 $zip = new ZipArchive();
 

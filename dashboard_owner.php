@@ -17,7 +17,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_booking'], $_POST[
     $aksi_status = $_POST['aksi_status'];
 
     if ($aksi_status === 'Hapus') {
-        // Ambil nama file bukti pembayaran agar file ikut terhapus dari server
         $stmt_file = $koneksi->prepare("SELECT bukti_pembayaran FROM bookings WHERE id_booking = ?");
         $stmt_file->bind_param("i", $id_booking);
         $stmt_file->execute();
@@ -30,6 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_booking'], $_POST[
         }
         $stmt_file->close();
 
+        // Hapus data booking (booking_details otomatis terhapus karena ON DELETE CASCADE)
         $stmt = $koneksi->prepare("DELETE FROM bookings WHERE id_booking = ?");
         $stmt->bind_param("i", $id_booking);
         $stmt->execute();
@@ -54,20 +54,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_booking'], $_POST[
     }
 }
 
-// Ambil seluruh list booking customer
-$query_bookings = $koneksi->query("SELECT * FROM bookings ORDER BY id_booking ASC");
+// Ambil seluruh list booking customer menggunakan JOIN ke customers, booking_details, dan services
+$sql_bookings = "SELECT b.*, c.nama_lengkap AS nama_customer, c.no_hp, c.email AS email_customer,
+                 GROUP_CONCAT(s.nama_service SEPARATOR ' + ') AS nama_service
+                 FROM bookings b
+                 JOIN customers c ON b.id_customer = c.id_customer
+                 JOIN booking_details bd ON b.id_booking = bd.id_booking
+                 JOIN services s ON bd.id_service = s.id_service
+                 GROUP BY b.id_booking
+                 ORDER BY b.id_booking ASC";
+
+$query_bookings = $koneksi->query($sql_bookings);
 ?>
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Owner - BARBERBOR</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=6">
+    <link rel="stylesheet" href="style.css?v=7">
 </head>
-
 <body class="retro-body">
 
     <!-- Navbar Khusus Owner -->
@@ -93,13 +100,13 @@ $query_bookings = $koneksi->query("SELECT * FROM bookings ORDER BY id_booking AS
                     <p class="retro-text mb-0">Kelola antrian customer Barberbor, cek bukti DP QRIS, dan export laporan booking.</p>
                 </div>
 
-                <!-- Tombol Export Rekapan Booking ke XLSX (Langsung Berwarna Cream) -->
+                <!-- Tombol Export Rekapan Booking ke XLSX -->
                 <div>
                     <a href="export_xlsx.php" class="btn retro-btn-export d-inline-flex align-items-center gap-2">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                            <polyline points="7 10 12 15 17 10" />
-                            <line x1="12" y1="15" x2="12" y2="3" />
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
                         </svg>
                         EXPORT REKAPAN (.XLSX)
                     </a>
@@ -130,7 +137,7 @@ $query_bookings = $koneksi->query("SELECT * FROM bookings ORDER BY id_booking AS
                             </tr>
                         </thead>
                         <tbody>
-                            <?php if ($query_bookings->num_rows > 0): ?>
+                            <?php if ($query_bookings && $query_bookings->num_rows > 0): ?>
                                 <?php while ($b = $query_bookings->fetch_assoc()): ?>
                                     <?php
                                     $nama_file  = !empty($b['bukti_pembayaran']) ? $b['bukti_pembayaran'] : '';
@@ -146,11 +153,11 @@ $query_bookings = $koneksi->query("SELECT * FROM bookings ORDER BY id_booking AS
                                         <td><?= htmlspecialchars($b['no_hp']); ?></td>
                                         <td>
                                             <?= htmlspecialchars($b['nama_service']); ?><br>
-                                            <small class="text-secondary">Harga: Rp <?= number_format($b['harga_service'], 0, ',', '.'); ?></small>
+                                            <small class="text-secondary">Total: Rp <?= number_format($b['total_harga'], 0, ',', '.'); ?></small>
                                         </td>
                                         <td class="text-success fw-bold">Rp <?= number_format($b['jumlah_dp'], 0, ',', '.'); ?></td>
-
-                                        <!-- Kolom Bukti Pembayaran: Hanya Tombol Lihat & Nama File (Tanpa Gambar Langsung) -->
+                                        
+                                        <!-- Kolom Bukti Pembayaran: Hanya Tombol Lihat Foto & Nama File -->
                                         <td class="text-center">
                                             <?php if ($ada_foto): ?>
                                                 <button type="button"
@@ -162,8 +169,8 @@ $query_bookings = $koneksi->query("SELECT * FROM bookings ORDER BY id_booking AS
                                                     data-antrian="#<?= $b['id_booking']; ?>"
                                                     title="<?= htmlspecialchars($nama_file); ?>">
                                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                                                        <circle cx="12" cy="12" r="3" />
+                                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                                        <circle cx="12" cy="12" r="3"/>
                                                     </svg>
                                                     <span>Lihat Foto</span>
                                                 </button>
@@ -181,6 +188,7 @@ $query_bookings = $koneksi->query("SELECT * FROM bookings ORDER BY id_booking AS
                                             if ($b['status_antrian'] === 'Antrian Berikutnya') $badge_class = 'bg-warning text-dark';
                                             elseif ($b['status_antrian'] === 'Sedang Diproses') $badge_class = 'bg-info text-dark';
                                             elseif ($b['status_antrian'] === 'Selesai') $badge_class = 'bg-success';
+                                            elseif ($b['status_antrian'] === 'Dibatalkan') $badge_class = 'bg-danger';
                                             ?>
                                             <span class="badge <?= $badge_class; ?> px-2 py-1">
                                                 <?= strtoupper($b['status_antrian']); ?>
@@ -189,15 +197,15 @@ $query_bookings = $koneksi->query("SELECT * FROM bookings ORDER BY id_booking AS
                                         <td>
                                             <!-- ICON GRID 2x2: Antrian Berikutnya, Sedang Diproses, Hapus, Selesai -->
                                             <div class="retro-action-grid">
-
+                                                
                                                 <!-- 1. Antrian Berikutnya -->
                                                 <form method="POST" onsubmit="alert('Anda antrian berikutnya, pastikan sudah berada di tempat!');">
                                                     <input type="hidden" name="id_booking" value="<?= $b['id_booking']; ?>">
                                                     <input type="hidden" name="aksi_status" value="Antrian Berikutnya">
                                                     <button type="submit" class="btn retro-grid-btn btn-grid-next" title="Panggil Antrian Berikutnya">
                                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                                                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                                                            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                                                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                                                            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
                                                         </svg>
                                                         <span>Antrian Berikutnya</span>
                                                     </button>
@@ -209,11 +217,11 @@ $query_bookings = $koneksi->query("SELECT * FROM bookings ORDER BY id_booking AS
                                                     <input type="hidden" name="aksi_status" value="Sedang Diproses">
                                                     <button type="submit" class="btn retro-grid-btn btn-grid-process" title="Tandai Sedang Diproses">
                                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                                                            <circle cx="6" cy="6" r="3" />
-                                                            <circle cx="6" cy="18" r="3" />
-                                                            <line x1="20" y1="4" x2="8.12" y2="15.88" />
-                                                            <line x1="14.47" y1="14.48" x2="20" y2="20" />
-                                                            <line x1="8.12" y1="8.12" x2="12" y2="12" />
+                                                            <circle cx="6" cy="6" r="3"/>
+                                                            <circle cx="6" cy="18" r="3"/>
+                                                            <line x1="20" y1="4" x2="8.12" y2="15.88"/>
+                                                            <line x1="14.47" y1="14.48" x2="20" y2="20"/>
+                                                            <line x1="8.12" y1="8.12" x2="12" y2="12"/>
                                                         </svg>
                                                         <span>Sedang Diproses</span>
                                                     </button>
@@ -225,10 +233,10 @@ $query_bookings = $koneksi->query("SELECT * FROM bookings ORDER BY id_booking AS
                                                     <input type="hidden" name="aksi_status" value="Hapus">
                                                     <button type="submit" class="btn retro-grid-btn btn-grid-delete" title="Hapus Data Antrian">
                                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                                                            <polyline points="3 6 5 6 21 6" />
-                                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                                                            <line x1="10" y1="11" x2="10" y2="17" />
-                                                            <line x1="14" y1="11" x2="14" y2="17" />
+                                                            <polyline points="3 6 5 6 21 6"/>
+                                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                                            <line x1="10" y1="11" x2="10" y2="17"/>
+                                                            <line x1="14" y1="11" x2="14" y2="17"/>
                                                         </svg>
                                                         <span>Hapus</span>
                                                     </button>
@@ -240,7 +248,7 @@ $query_bookings = $koneksi->query("SELECT * FROM bookings ORDER BY id_booking AS
                                                     <input type="hidden" name="aksi_status" value="Selesai">
                                                     <button type="submit" class="btn retro-grid-btn btn-grid-done" title="Tandai Selesai">
                                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                                                            <polyline points="20 6 9 17 4 12" />
+                                                            <polyline points="20 6 9 17 4 12"/>
                                                         </svg>
                                                         <span>Selesai</span>
                                                     </button>
@@ -296,7 +304,6 @@ $query_bookings = $koneksi->query("SELECT * FROM bookings ORDER BY id_booking AS
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="script.js?v=6"></script>
+    <script src="script.js?v=7"></script>
 </body>
-
 </html>
